@@ -4,9 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workout Tracker</title>
-    <link rel="stylesheet" href="css/reset.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="path/to/favicon.ico">
+    
+    <!-- Resource hints -->
+    <link rel="preconnect" href="/data">
+    <link rel="dns-prefetch" href="/data">
+    
+    <!-- Critical CSS -->
+    <style>
+        .hidden { display: none; }
+        #errorContainer {
+            padding: 1rem;
+            margin: 1rem;
+            background-color: #fee;
+            border: 1px solid #f66;
+            border-radius: 4px;
+            color: #c00;
+        }
+        #loadingIndicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    
+    <!-- Deferred CSS -->
+    <link rel="stylesheet" href="css/reset.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
+    
+    <link rel="icon" href="path/to/favicon.ico" onerror="this.href='data:image/x-icon;,'">
 </head>
 <body>
     <header>
@@ -32,9 +62,40 @@
         </div>
     </main>
 
-    <script src="js/utils.js" type="module"></script>
-    <script src="js/db.js" type="module"></script>
-    <script src="js/workout.js" type="module"></script>
-    <script src="js/app.js" type="module"></script>
+    <!-- Error and loading indicators -->
+    <div id="errorContainer" role="alert" class="hidden"></div>
+    <div id="loadingIndicator" class="hidden">Loading...</div>
+
+    <!-- Error handling -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'SCRIPT') {
+                document.getElementById('errorContainer').textContent = 'Failed to load application scripts';
+                document.getElementById('errorContainer').classList.remove('hidden');
+            }
+        });
+    </script>
+
+    <!-- Module preloading -->
+    <link rel="modulepreload" href="js/utils.js">
+    <link rel="modulepreload" href="js/db.js">
+    <link rel="modulepreload" href="js/workout.js">
+    <link rel="modulepreload" href="js/app.js">
+
+    <!-- Module loading with error handling -->
+    <script type="module">
+        try {
+            await Promise.all([
+                import('./js/utils.js'),
+                import('./js/db.js'),
+                import('./js/workout.js'),
+                import('./js/app.js')
+            ]);
+        } catch (error) {
+            console.error('Module loading failed:', error);
+            document.getElementById('errorContainer').textContent = 'Failed to initialize application';
+            document.getElementById('errorContainer').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>
