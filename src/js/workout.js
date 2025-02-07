@@ -1,5 +1,3 @@
-
-
 class WorkoutManager {
     constructor() {
         this.currentWorkout = null;
@@ -9,7 +7,7 @@ class WorkoutManager {
 
     async loadWorkoutData() {
         try {
-            const response = await fetch('/workout-phase.json');
+            const response = await fetch('./workout-phase.json');  // Changed from '/workout-phase.json'
             this.workoutData = await response.json();
             this.initializeWorkout();
         } catch (error) {

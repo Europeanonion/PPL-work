@@ -1,6 +1,12 @@
 [build]
-  publish = "src"
+  publish = "."
   command = "# no build command"
+
+[[headers]]
+  for = "/service-worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+    Service-Worker-Allowed = "/"
 
 [[headers]]
   for = "/*"
