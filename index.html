@@ -3,12 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Workout Tracker</title>
     
     <!-- Resource hints -->
     <link rel="preconnect" href="/data">
     <link rel="dns-prefetch" href="/data">
+    <link rel="preload" href="workout-tracker/css/style.css" as="style">
+    <link rel="preload" href="workout-tracker/js/app.js" as="script">
     
+    <!-- Performance monitoring -->
+    <script>
+        performance.mark('app-start');
+        window.addEventListener('load', () => {
+            performance.mark('app-loaded');
+            performance.measure('app-load-time', 'app-start', 'app-loaded');
+            const loadTime = performance.getEntriesByName('app-load-time')[0].duration;
+            console.log(`App loaded in ${loadTime.toFixed(2)}ms`);
+        });
+    </script>
+
     <!-- Critical CSS -->
     <style>
         .hidden { display: none; }
@@ -33,10 +47,10 @@
     </style>
     
     <!-- Deferred CSS -->
-    <link rel="stylesheet" href="css/reset.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="workout-tracker/css/reset.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="workout-tracker/css/style.css" media="print" onload="this.media='all'">
     
-    <link rel="icon" href="path/to/favicon.ico" onerror="this.href='data:image/x-icon;,'">
+    <link rel="icon" href="workout-tracker/favicon.ico" onerror="this.href='data:image/x-icon;,'">
 </head>
 <body>
     <header>
@@ -77,25 +91,37 @@
     </script>
 
     <!-- Module preloading -->
-    <link rel="modulepreload" href="js/utils.js">
-    <link rel="modulepreload" href="js/db.js">
-    <link rel="modulepreload" href="js/workout.js">
-    <link rel="modulepreload" href="js/app.js">
+    <link rel="modulepreload" href="workout-tracker/js/utils.js">
+    <link rel="modulepreload" href="workout-tracker/js/db.js">
+    <link rel="modulepreload" href="workout-tracker/js/workout.js">
+    <link rel="modulepreload" href="workout-tracker/js/app.js">
 
     <!-- Module loading with error handling -->
-    <script type="module">
-        try {
-            await Promise.all([
-                import('./js/utils.js'),
-                import('./js/db.js'),
-                import('./js/workout.js'),
-                import('./js/app.js')
-            ]);
-        } catch (error) {
-            console.error('Module loading failed:', error);
-            document.getElementById('errorContainer').textContent = 'Failed to initialize application';
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.classList.remove('hidden');
+            
+            Promise.all([
+                import('./workout-tracker/js/utils.js'),
+                import('./workout-tracker/js/db.js'),
+                import('./workout-tracker/js/workout.js'),
+                import('./workout-tracker/js/app.js')
+            ]).catch(error => {
+                console.error('Module loading failed:', error);
+                document.getElementById('errorContainer').textContent = 'Failed to initialize application';
+                document.getElementById('errorContainer').classList.remove('hidden');
+            }).finally(() => {
+                loadingIndicator.classList.add('hidden');
+            });
+        });
+
+        // Enhanced error handling
+        window.addEventListener('unhandledrejection', event => {
+            console.error('Unhandled promise rejection:', event.reason);
+            document.getElementById('errorContainer').textContent = 'An unexpected error occurred';
             document.getElementById('errorContainer').classList.remove('hidden');
-        }
+        });
     </script>
 </body>
 </html>
