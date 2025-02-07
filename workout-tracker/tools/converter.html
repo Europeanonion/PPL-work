@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV to JSON Converter</title>
+    <style>
+        body { padding: 20px; font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: 0 auto; }
+        textarea { width: 100%; height: 300px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Workout CSV to JSON Converter</h1>
+        <div>
+            <input type="file" id="csvFile" accept=".csv">
+        </div>
+        <div>
+            <textarea id="output" placeholder="JSON output will appear here"></textarea>
+        </div>
+        <div>
+            <button onclick="downloadJson()">Download JSON</button>
+        </div>
+    </div>
+    <script>
+        function extractUrlAndName(text) {
+            const match = text.match(/^(.*?)\s*\[(https?:\/\/[^\]]+)\]$/);
+            if (match) {
+                return { name: match[1].trim(), url: match[2] };
+            }
+            return { name: text.trim() };
+        }
+
+        function parseExercise(row) {
+            if (!row[1]) return null;
+            
+            const { name, url } = extractUrlAndName(row[1]);
+            const sub1 = extractUrlAndName(row[8] || '');
+            const sub2 = extractUrlAndName(row[9] || '');
+
+            return {
+                name,
+                videoUrl: url,
+                warmupSets: parseInt(row[2]) || 0,
+                workingSets: parseInt(row[3]) || 0,
+                reps: row[4] || '',
+                load: row[5] || '',
+                rpe: row[6] || '',
+                rest: row[7] || '',
+                substitutions: {
+                    option1: { name: sub1.name, videoUrl: sub1.url },
+                    option2: { name: sub2.name, videoUrl: sub2.url }
+                },
+                notes: row[10] || ''
+            };
+        }
+
+        function convertCsvToJson(csvText) {
+            const lines = csvText.split('\n')
+                .map(line => line.split(',')
+                .map(cell => cell.replace(/^"|"$/g, '').trim()));
+            
+            const phaseName = lines[0][0];
+            const weeks = [];
+            let currentWeek = null;
+            let currentDay = null;
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (line[0].startsWith('Week')) {
+                    currentWeek = {
+                        weekNumber: parseInt(line[0].split(' ')[1]),
+                        days: []
+                    };
+                    weeks.push(currentWeek);
+                    continue;
+                }
+
+                if (line[0] && line[1]) {
+                    if (currentWeek) {
+                        currentDay = {
+                            name: line[0],
+                            exercises: []
+                        };
+                        currentWeek.days.push(currentDay);
+                    }
+                }
+
+                const exercise = parseExercise(line);
+                if (currentDay && exercise) {
+                    currentDay.exercises.push(exercise);
+                }
+            }
+
+            return {
+                name: phaseName.split('-')[0].trim(),
+                description: phaseName.split('-')[1]?.trim() || '',
+                weeks
+            };
+        }
+
+        document.getElementById('csvFile').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const text = e.target.result;
+                const json = convertCsvToJson(text);
+                document.getElementById('output').value = JSON.stringify(json, null, 2);
+            };
+            
+            reader.readAsText(file);
+        });
+
+        function downloadJson() {
+            const json = document.getElementById('output').value;
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'workout-phase.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
