@@ -9,8 +9,8 @@
     <!-- Resource hints -->
     <link rel="preconnect" href="/data">
     <link rel="dns-prefetch" href="/data">
-    <link rel="preload" href="workout-tracker/css/style.css" as="style">
-    <link rel="preload" href="workout-tracker/js/app.js" as="script">
+    <link rel="preload" href="./workout-tracker/src/css/style.css" as="style" crossorigin="anonymous">
+    <link rel="preload" href="./workout-tracker/src/js/app.js" as="module" crossorigin="anonymous">
     
     <!-- Performance monitoring -->
     <script>
@@ -47,8 +47,8 @@
     </style>
     
     <!-- Deferred CSS -->
-    <link rel="stylesheet" href="workout-tracker/css/reset.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="workout-tracker/css/style.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" type="text/css" href="./workout-tracker/src/css/reset.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" type="text/css" href="./workout-tracker/src/css/style.css" media="print" onload="this.media='all'">
     
     <link rel="icon" href="workout-tracker/favicon.ico" onerror="this.href='data:image/x-icon;,'">
 </head>
@@ -91,29 +91,32 @@
     </script>
 
     <!-- Module preloading -->
-    <link rel="modulepreload" href="workout-tracker/js/utils.js">
-    <link rel="modulepreload" href="workout-tracker/js/db.js">
-    <link rel="modulepreload" href="workout-tracker/js/workout.js">
-    <link rel="modulepreload" href="workout-tracker/js/app.js">
+    <link rel="modulepreload" href="./workout-tracker/src/js/utils.js" crossorigin="anonymous">
+    <link rel="modulepreload" href="./workout-tracker/src/js/db.js" crossorigin="anonymous">
+    <link rel="modulepreload" href="./workout-tracker/src/js/workout.js" crossorigin="anonymous">
+    <link rel="modulepreload" href="./workout-tracker/src/js/app.js" crossorigin="anonymous">
 
     <!-- Module loading with error handling -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
             const loadingIndicator = document.getElementById('loadingIndicator');
             loadingIndicator.classList.remove('hidden');
             
-            Promise.all([
-                import('./workout-tracker/js/utils.js'),
-                import('./workout-tracker/js/db.js'),
-                import('./workout-tracker/js/workout.js'),
-                import('./workout-tracker/js/app.js')
-            ]).catch(error => {
+            try {
+                const [utils, db, workout, app] = await Promise.all([
+                    import('./workout-tracker/src/js/utils.js'),
+                    import('./workout-tracker/src/js/db.js'),
+                    import('./workout-tracker/src/js/workout.js'),
+                    import('./workout-tracker/src/js/app.js')
+                ]);
+                // Initialize modules here
+            } catch (error) {
                 console.error('Module loading failed:', error);
                 document.getElementById('errorContainer').textContent = 'Failed to initialize application';
                 document.getElementById('errorContainer').classList.remove('hidden');
-            }).finally(() => {
+            } finally {
                 loadingIndicator.classList.add('hidden');
-            });
+            }
         });
 
         // Enhanced error handling
