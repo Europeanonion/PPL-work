@@ -1,13 +1,40 @@
-workout-tracker
-├── src
-│   ├── js
-│   │   ├── app.js
-│   │   ├── db.js
-│   │   ├── workout.js
-│   │   └── utils.js
-│   ├── css
-│   │   ├── style.css
-│   │   └── reset.css
-│   └── index.html
-├── .gitignore
-└── README.md
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Workout Tracker</h1>
+        <nav>
+            <button id="currentWorkout">Current Workout</button>
+            <button id="history">History</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="workoutView" class="view">
+            <h2>Current Workout</h2>
+            <div id="workoutContainer">
+                <div id="exerciseList"></div>
+                <button id="completeWorkout">Complete Workout</button>
+            </div>
+        </div>
+
+        <div id="historyView" class="view hidden">
+            <h2>Workout History</h2>
+            <div id="historyContainer"></div>
+        </div>
+    </main>
+
+    <script src="js/utils.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/workout.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

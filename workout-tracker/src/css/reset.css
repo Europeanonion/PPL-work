@@ -1,13 +1,38 @@
-workout-tracker
-├── src
-│   ├── js
-│   │   ├── app.js
-│   │   ├── db.js
-│   │   ├── workout.js
-│   │   └── utils.js
-│   ├── css
-│   │   ├── style.css
-│   │   └── reset.css
-│   └── index.html
-├── .gitignore
-└── README.md
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+}
+
+button {
+    font: inherit;
+}
+
+button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+input:where([type="text"], [type="number"]) {
+    font: inherit;
+    line-height: 1.15;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

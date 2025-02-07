@@ -1,0 +1,17 @@
+{
+  "name": "workout-tracker",
+  "version": "1.0.0",
+  "description": "Personal workout tracking application",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve src",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
