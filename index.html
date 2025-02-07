@@ -9,8 +9,8 @@
     <!-- Resource hints -->
     <link rel="preconnect" href="/data">
     <link rel="dns-prefetch" href="/data">
-    <link rel="preload" href="./workout-tracker/src/css/style.css" as="style" crossorigin="anonymous">
-    <link rel="preload" href="./workout-tracker/src/js/app.js" as="module" crossorigin="anonymous">
+    <link rel="preload" href="/src/css/style.css" as="style" crossorigin="anonymous">
+    <link rel="preload" href="/src/js/app.js" as="script" crossorigin="anonymous">
     
     <!-- Performance monitoring -->
     <script>
@@ -47,10 +47,10 @@
     </style>
     
     <!-- Deferred CSS -->
-    <link rel="stylesheet" type="text/css" href="./workout-tracker/src/css/reset.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" type="text/css" href="./workout-tracker/src/css/style.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="/src/css/style.css" media="print" onload="this.media='all'">
     
     <link rel="icon" href="workout-tracker/favicon.ico" onerror="this.href='data:image/x-icon;,'">
+    <link rel="manifest" href="/manifest.json">
 </head>
 <body>
     <header>
@@ -91,10 +91,10 @@
     </script>
 
     <!-- Module preloading -->
-    <link rel="modulepreload" href="./workout-tracker/src/js/utils.js" crossorigin="anonymous">
-    <link rel="modulepreload" href="./workout-tracker/src/js/db.js" crossorigin="anonymous">
-    <link rel="modulepreload" href="./workout-tracker/src/js/workout.js" crossorigin="anonymous">
-    <link rel="modulepreload" href="./workout-tracker/src/js/app.js" crossorigin="anonymous">
+    <link rel="modulepreload" href="/src/js/utils.js" crossorigin="anonymous">
+    <link rel="modulepreload" href="/src/js/db.js" crossorigin="anonymous">
+    <link rel="modulepreload" href="/src/js/workout.js" crossorigin="anonymous">
+    <link rel="modulepreload" href="/src/js/app.js" crossorigin="anonymous">
 
     <!-- Module loading with error handling -->
     <script type="module">
@@ -104,10 +104,10 @@
             
             try {
                 const [utils, db, workout, app] = await Promise.all([
-                    import('./workout-tracker/src/js/utils.js'),
-                    import('./workout-tracker/src/js/db.js'),
-                    import('./workout-tracker/src/js/workout.js'),
-                    import('./workout-tracker/src/js/app.js')
+                    import('/src/js/utils.js'),
+                    import('/src/js/db.js'),
+                    import('/src/js/workout.js'),
+                    import('/src/js/app.js')
                 ]);
                 // Initialize modules here
             } catch (error) {
@@ -125,6 +125,17 @@
             document.getElementById('errorContainer').textContent = 'An unexpected error occurred';
             document.getElementById('errorContainer').classList.remove('hidden');
         });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/src/services/service-worker.js');
+                    console.log('ServiceWorker registration successful:', registration.scope);
+                } catch (error) {
+                    console.error('ServiceWorker registration failed:', error);
+                }
+            });
+        }
     </script>
 </body>
 </html>
