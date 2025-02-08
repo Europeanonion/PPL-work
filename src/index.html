@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Workout Tracker</title>
+    
+    <!-- Resource hints -->
+    <link rel="preload" href="src/js/app.js" as="script">
+    <link rel="preload" href="src/css/style.css" as="style">
+    
+    <!-- Critical CSS -->
+    <style>
+        .hidden { display: none; }
+        #errorContainer {
+            padding: 1rem;
+            margin: 1rem;
+            background-color: #fee;
+            border: 1px solid #f66;
+            border-radius: 4px;
+            color: #c00;
+        }
+        #loadingIndicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    
+    <!-- Defer non-critical CSS -->
+    <link rel="stylesheet" href="src/css/style.css" media="print" onload="this.media='all'">
+</head>
+<body>
+    <header>
+        <h1>Workout Tracker</h1>
+        <nav>
+            <button id="currentWorkout">Current Workout</button>
+            <button id="history">History</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="workoutView" class="view">
+            <select id="workoutPhase">
+                <option value="">-- Select Workout Phase --</option>
+            </select>
+            <div id="exerciseList"></div>
+        </div>
+        <div id="historyView" class="view hidden"></div>
+    </main>
+
+    <!-- Error and loading indicators -->
+    <div id="errorContainer" role="alert" class="hidden"></div>
+    <div id="loadingIndicator" class="hidden">Loading...</div>
+
+    <!-- Application scripts -->
+    <script type="module" src="src/js/db.js"></script>
+    <script type="module" src="src/js/workout.js"></script>
+    <script type="module" src="src/js/app.js"></script>
+</body>
+</html>

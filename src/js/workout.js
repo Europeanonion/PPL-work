@@ -1,4 +1,6 @@
-class WorkoutManager {
+import { fetchWorkoutData, validateWorkoutData } from './utils.js';
+
+export class WorkoutManager {
     constructor() {
         this.currentWorkout = null;
         this.workoutData = null;
@@ -6,38 +8,109 @@ class WorkoutManager {
     }
 
     async loadWorkoutData() {
-        try {
-            const response = await fetch('./workout-phase.json');  // Changed from '/workout-phase.json'
-            this.workoutData = await response.json();
+        const data = await fetchWorkoutData('program');
+        if (data) {
+            this.workoutData = data;
             this.initializeWorkout();
-        } catch (error) {
-            console.error('Error loading workout data:', error);
+        } else {
+            this.handleDataLoadError(new Error('Failed to load workout data'));
         }
     }
 
-    initializeWorkout() {
-        if (!this.workoutData) return;
-        
-        const phase = this.workoutData.phases[0];
-        const currentWeek = phase.weeks[0];
-        const currentDay = currentWeek.days[0];
+    isValidWorkoutData(data) {
+        return validateWorkoutData(data);
+    }
 
-        this.currentWorkout = {
-            date: new Date(),
-            phase: phase.name,
-            week: currentWeek.weekNumber,
-            day: currentDay.name,
-            exercises: currentDay.exercises.map(ex => ({
-                ...ex,
-                sets: Array(ex.workingSets).fill().map(() => ({
-                    weight: '',
-                    reps: '',
-                    completed: false
-                }))
-            }))
-        };
+    handleDataLoadError(error) {
+        const container = document.getElementById('exerciseList');
+        if (container) {
+            container.innerHTML = `
+                <div class="error-message">
+                    <h3>Failed to load workout data</h3>
+                    <p>Please check if the program.json file exists and is properly formatted.</p>
+                </div>`;
+        }
+    }
 
-        this.renderWorkout();
+    validateWorkoutStructure(data) {
+        if (!data || typeof data !== 'object') {
+            throw new Error('Invalid workout data format');
+        }
+
+        if (!Array.isArray(data.phases) || data.phases.length === 0) {
+            throw new Error('No workout phases found');
+        }
+
+        data.phases.forEach((phase, phaseIndex) => {
+            if (!phase.name || !Array.isArray(phase.weeks)) {
+                throw new Error(`Invalid phase structure at index ${phaseIndex}`);
+            }
+
+            phase.weeks.forEach((week, weekIndex) => {
+                if (!week.weekNumber || !Array.isArray(week.days)) {
+                    throw new Error(
+                        `Invalid week structure in phase ${phase.name}, week ${weekIndex + 1}`
+                    );
+                }
+
+                week.days.forEach((day, dayIndex) => {
+                    if (!day.name || !Array.isArray(day.exercises)) {
+                        throw new Error(
+                            `Invalid day structure in phase ${phase.name}, week ${weekIndex + 1}, day ${dayIndex + 1}`
+                        );
+                    }
+                });
+            });
+        });
+
+        return true;
+    }
+
+    async initializeWorkout() {
+        try {
+            await verifyJsonFiles();
+            const data = await this.loadWorkoutData();
+            
+            if (this.validateWorkoutStructure(data)) {
+                if (!this.isValidWorkoutData(this.workoutData)) {
+                    console.error("Invalid or missing workout data");
+                    return;
+                }
+
+                const phase = this.workoutData.phases[0] || null;
+                const currentWeek = phase?.weeks?.[0] || null;
+                const currentDay = currentWeek?.days?.[0] || null;
+
+                if (!currentDay) {
+                    console.error("Error: No days found in the first workout phase.");
+                    return;
+                }
+
+                this.currentWorkout = {
+                    date: new Date(),
+                    phase: phase.name,
+                    week: currentWeek.weekNumber,
+                    day: currentDay.name,
+                    exercises: currentDay.exercises.map(ex => ({
+                        ...ex,
+                        sets: Array(ex.workingSets).fill().map(() => ({
+                            weight: '',
+                            reps: '',
+                            completed: false
+                        }))
+                    }))
+                };
+
+                this.renderWorkout();
+            }
+        } catch (error) {
+            console.error('Workout initialization failed:', error);
+            const errorContainer = document.getElementById('errorContainer');
+            if (errorContainer) {
+                errorContainer.textContent = error.message;
+                errorContainer.classList.remove('hidden');
+            }
+        }
     }
 
     renderWorkout() {
@@ -95,4 +168,83 @@ class WorkoutManager {
             return false;
         }
     }
+
+    async loadAllPhases() {
+        const phases = ['push1', 'push2', 'push3']; // Ensure filenames match actual JSON files
+        const phaseData = [];
+
+        try {
+            console.log("Loading workout phases...");
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.classList.remove('hidden');
+
+            for (const phase of phases) {
+                const data = await fetchWorkoutData(phase);
+                if (data) {
+                    phaseData.push({
+                        id: phase,
+                        name: data.name,
+                        description: data.description,
+                        weeks: data.weeks
+                    });
+                } else {
+                    console.warn(`Warning: Failed to load ${phase}.json`);
+                }
+            }
+
+            if (phaseData.length > 0) {
+                populatePhaseDropdown(phaseData);
+            } else {
+                console.error("No workout phases found.");
+            }
+        } catch (error) {
+            console.error("Error loading phases:", error);
+            showError("Failed to load workout phases");
+        } finally {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+        }
+    }
 }
+
+function populatePhaseDropdown(phases) {
+    const select = document.getElementById('workoutPhase');
+    if (!select) {
+        console.error("Dropdown element #workoutPhase not found.");
+        return;
+    }
+    
+    select.innerHTML = '<option value="">-- Select a Phase --</option>';
+
+    phases.forEach(phase => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = `${phase.name} - ${phase.description}`;
+
+        phase.weeks.forEach((week, index) => {
+            const option = document.createElement('option');
+            option.value = `${phase.id}_${index}`;
+            option.textContent = `Week ${week.weekNumber}`;
+            optgroup.appendChild(option);
+        });
+
+        select.appendChild(optgroup);
+    });
+
+    select.addEventListener('change', (event) => {
+        const selectedValue = event.target.value;
+        if (!selectedValue) return;
+
+        const [phaseId, weekIndex] = selectedValue.split('_');
+        const selectedPhase = phases.find(phase => phase.id === phaseId);
+        if (selectedPhase) {
+            displayWorkouts(selectedPhase.weeks[weekIndex]);
+        }
+    });
+
+    console.log("Dropdown populated successfully.");
+}
+
+// Ensure loadAllPhases() runs when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const workoutManager = new WorkoutManager();
+    workoutManager.loadAllPhases();
+});

@@ -7,24 +7,41 @@ class WorkoutDB {
     }
 
     async init() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, this.dbVersion);
+        try {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(this.dbName, this.dbVersion);
 
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => {
-                this.db = request.result;
-                resolve();
-            };
+                request.onerror = () => {
+                    const error = new Error(`Failed to open database: ${request.error}`);
+                    console.error(error);
+                    reject(error);
+                };
 
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                
-                if (!db.objectStoreNames.contains('workouts')) {
-                    const workoutStore = db.createObjectStore('workouts', { keyPath: 'id', autoIncrement: true });
-                    workoutStore.createIndex('date', 'date');
-                }
-            };
-        });
+                request.onblocked = () => {
+                    const error = new Error('Database blocked - close other tabs and retry');
+                    console.error(error);
+                    reject(error);
+                };
+
+                request.onsuccess = () => {
+                    this.db = request.result;
+                    resolve();
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    
+                    if (!db.objectStoreNames.contains('workouts')) {
+                        const store = db.createObjectStore('workouts', { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('date', 'date', { unique: false });
+                        store.createIndex('phase', 'phase', { unique: false });
+                    }
+                };
+            });
+        } catch (error) {
+            console.error('Database initialization failed:', error);
+            throw error;
+        }
     }
 
     async saveWorkout(workout) {
@@ -34,7 +51,10 @@ class WorkoutDB {
             const request = store.add(workout);
 
             request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
+            request.onerror = () => {
+                console.error("Error saving workout:", request.error);
+                reject(request.error);
+            };
         });
     }
 
@@ -45,9 +65,12 @@ class WorkoutDB {
             const request = store.getAll();
 
             request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
+            request.onerror = () => {
+                console.error("Error fetching workouts:", request.error);
+                reject(request.error);
+            };
         });
     }
 }
 
-const db = new WorkoutDB();
+export const db = new WorkoutDB();

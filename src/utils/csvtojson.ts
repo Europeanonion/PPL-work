@@ -107,6 +107,11 @@ export function convertCsvToJson(csvData: string[][]): WorkoutProgram {
 }
 
 export function parseWorkoutCsv(csvData: string): Phase {
-  const lines = csvData.split('\n').map(line => line.split('","').map(cell => cell.replace(/^"|"$/g, '')));
-  return convertCsvToJson(lines).phases[0];
+    try {
+        const lines = csvData.split('\n').map(line => line.split('","').map(cell => cell.replace(/^"|"$/g, '')));
+        return convertCsvToJson(lines).phases[0];
+    } catch (error) {
+        console.error("Error parsing CSV data:", error);
+        throw new Error("Failed to parse CSV data");
+    }
 }

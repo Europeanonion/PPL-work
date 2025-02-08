@@ -1,6 +1,6 @@
 {
   "name": "Phase 1",
-  "description": "Base Hypertrophy (Moderate Volume",
+  "description": "Base Hypertrophy (Moderate Volume)",
   "weeks": [
     {
       "weekNumber": 1,
@@ -895,7 +895,7 @@
               "videoUrl": "https://youtu.be/VL5Ab0T07e4?t=175",
               "warmupSets": 3,
               "workingSets": 1,
-              "reps": "5",
+              "reps": "1",
               "load": "",
               "rpe": "8-9",
               "rest": "~3-5 min",

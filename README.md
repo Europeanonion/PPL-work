@@ -18,7 +18,15 @@ The Personal Workout Tracker is a web application designed to help users log the
    ```
    cd workout-tracker
    ```
-3. Open `src/index.html` in your web browser to view the application.
+3. Install dependencies:
+   ```
+   npm install
+   ```
+4. Start the development server:
+   ```
+   npm start
+   ```
+5. Open `src/index.html` in your web browser to view the application.
 
 ## Usage
 - To log a workout, fill out the form on the main page and submit.
@@ -30,6 +38,24 @@ The Personal Workout Tracker is a web application designed to help users log the
 - CSS
 - JavaScript
 - IndexedDB
+
+## Project Structure
+
+```
+workout-tracker
+├── src
+│   ├── js
+│   │   ├── app.js
+│   │   ├── db.js
+│   │   ├── workout.js
+│   │   └── utils.js
+│   ├── css
+│   │   ├── style.css
+│   │   └── reset.css
+│   └── index.html
+├── .gitignore
+└── README.md
+```
 
 ## License
 This project is licensed under the MIT License.

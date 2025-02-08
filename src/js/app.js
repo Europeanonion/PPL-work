@@ -1,3 +1,6 @@
+import { WorkoutManager } from './workout.js';
+import { db } from './db.js';
+
 class App {
     constructor() {
         this.workoutManager = new WorkoutManager();
@@ -6,18 +9,31 @@ class App {
     }
 
     initializeEventListeners() {
-        document.getElementById('currentWorkout').addEventListener('click', () => this.showView('workout'));
-        document.getElementById('history').addEventListener('click', () => this.showView('history'));
-        document.getElementById('completeWorkout').addEventListener('click', () => this.completeWorkout());
+        try {
+            const elements = ['currentWorkout', 'history', 'completeWorkout'].map(id => 
+                document.getElementById(id) || (() => { throw new Error(`Element ${id} not found`) })());
+            
+            elements[0].addEventListener('click', () => this.showView('workout'));
+            elements[1].addEventListener('click', () => this.showView('history'));
+            elements[2].addEventListener('click', () => this.completeWorkout());
+        } catch (error) {
+            console.error('Failed to initialize event listeners:', error);
+        }
     }
 
-    showView(view) {
-        this.currentView = view;
-        document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
-        document.getElementById(`${view}View`).classList.remove('hidden');
+    async showView(view) {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        try {
+            loadingIndicator.classList.remove('hidden');
+            this.currentView = view;
+            document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`${view}View`).classList.remove('hidden');
 
-        if (view === 'history') {
-            this.loadHistory();
+            if (view === 'history') {
+                await this.loadHistory();
+            }
+        } finally {
+            loadingIndicator.classList.add('hidden');
         }
     }
 
