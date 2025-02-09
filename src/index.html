@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- No favicon used intentionally -->
     <title>Workout Tracker</title>
     
     <!-- Resource hints -->
-    <link rel="preload" href="src/js/app.js" as="script">
-    <link rel="preload" href="src/css/style.css" as="style">
+    <link rel="preload" href="./js/app.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="./css/style.css" as="style">
     
     <!-- Critical CSS -->
     <style>
@@ -34,7 +35,21 @@
     </style>
     
     <!-- Defer non-critical CSS -->
-    <link rel="stylesheet" href="src/css/style.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="./css/style.css" media="print" onload="this.media='all'">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -60,8 +75,8 @@
     <div id="loadingIndicator" class="hidden">Loading...</div>
 
     <!-- Application scripts -->
-    <script type="module" src="src/js/db.js"></script>
-    <script type="module" src="src/js/workout.js"></script>
-    <script type="module" src="src/js/app.js"></script>
+    <script type="module" src="./js/db.js"></script>
+    <script type="module" src="./js/workout.js"></script>
+    <script type="module" src="./js/app.js"></script>
 </body>
 </html>

@@ -1,31 +1,19 @@
 {
   "phases": [
     {
-      "name": "Base Building",
-      "description": "Focus on building fundamental strength and muscle",
-      "weeks": [
-        {
-          "weekNumber": 1,
-          "days": [
-            {
-              "name": "Push Day",
-              "exercises": [
-                {
-                  "name": "Bench Press",
-                  "videoUrl": "https://example.com/bench-press",
-                  "warmupSets": 2,
-                  "workingSets": 3,
-                  "reps": "8-12",
-                  "load": "70-75% 1RM",
-                  "rpe": "7-8",
-                  "rest": "2-3 min",
-                  "notes": "Focus on form and control"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "name": "Phase 1",
+      "description": "Base Hypertrophy (Moderate Volume)",
+      "weeks": []
+    },
+    {
+      "name": "Phase 2",
+      "description": "Maximum Effort (Low Volume)",
+      "weeks": []
+    },
+    {
+      "name": "Phase 3",
+      "description": "Supercompensation (High Volume)",
+      "weeks": []
     }
   ]
 }

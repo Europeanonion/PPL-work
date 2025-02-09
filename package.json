@@ -2,10 +2,10 @@
   "name": "workout-tracker",
   "version": "1.0.0",
   "description": "Personal workout tracking application",
-  "main": "index.html",
+  "main": "src/index.html",
   "type": "module",
   "scripts": {
-    "start": "serve .",
+    "start": "serve -s . -p 5500",
     "build": "tsc --outDir dist",
     "watch": "tsc --watch",
     "test": "jest"
